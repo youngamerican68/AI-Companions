@@ -100,6 +100,7 @@ export default async function PlatformPage({ params }: PageProps) {
       id: s.id,
       title: s.title,
       url: s.canonicalUrl,
+      imageUrl: s.imageUrl || null,
       sourceName: s.rawSignal.sourceName,
       sourceDomain: s.rawSignal.sourceDomain,
       publishedAt: s.publishedAt?.toISOString() || null,
