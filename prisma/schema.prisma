@@ -1,0 +1,214 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum SourceType {
+  MEDIA
+  PRODUCT
+  SOCIAL
+  REGULATORY
+}
+
+enum IngestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  FAILED
+}
+
+enum Category {
+  PRODUCT_UPDATE
+  MONETIZATION_CHANGE
+  SAFETY_YOUTH_RISK
+  NSFW_CONTENT_POLICY
+  CULTURAL_TREND
+  REGULATORY_LEGAL
+  BUSINESS_FUNDING
+}
+
+enum ClusterStatus {
+  ACTIVE
+  STALE
+}
+
+enum RunStatus {
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+// =============================================================================
+// MODELS
+// =============================================================================
+
+/// Immutable fetch artifact - stores raw data as fetched
+model RawSignal {
+  id             String     @id @default(cuid())
+  sourceType     SourceType
+  sourceName     String     // e.g., "The Verge", "Reddit"
+  sourceUrl      String
+  sourceDomain   String
+  externalId     String?    // For dedupe when available (e.g., RSS guid)
+  fetchedAt      DateTime   @default(now())
+  rawContentType String     // rss_item, html, json
+  rawPayload     Json       // Original payload
+  rawText        String?    @db.Text // Extracted text (truncated to 20k)
+  contentHash    String     @unique // SHA256 for dedupe
+
+  signal Signal?
+
+  @@index([sourceDomain])
+  @@index([fetchedAt])
+  @@index([contentHash])
+}
+
+/// Normalized, deduplicated signal with LLM-processed fields
+model Signal {
+  id          String    @id @default(cuid())
+  rawSignalId String    @unique
+  rawSignal   RawSignal @relation(fields: [rawSignalId], references: [id], onDelete: Cascade)
+
+  canonicalUrl String
+  title        String?
+  author       String?
+  publishedAt  DateTime?
+  language     String?   @default("en")
+  imageUrl     String?   // Open Graph image from article
+
+  // LLM-normalized fields
+  normalizedSummary String?    @db.Text
+  suggestedHeadline String?
+  categories        Category[]
+  entities          Json? // {platforms[], companies[], people[], topics[], unknownPlatforms[]}
+  confidence        Float?
+
+  // LLM provenance (auditability) - enables reprocessing + debugging
+  llmProvider    String? // "openai", "anthropic"
+  llmModel       String? // "gpt-4o-mini"
+  promptVersion  String? // "v1.0" - increment on prompt changes
+  llmRawResponse String? @db.Text // Bounded to 20KB max for debugging
+
+  // Processing status
+  ingestStatus IngestStatus @default(PENDING)
+  ingestReason String?
+  normalizedAt DateTime?
+
+  // Cluster relation
+  clusterId String?
+  cluster   StoryCluster? @relation(fields: [clusterId], references: [id])
+
+  // Junction for platforms
+  platforms SignalPlatform[]
+
+  createdAt DateTime @default(now())
+
+  @@index([publishedAt])
+  @@index([clusterId])
+  @@index([ingestStatus])
+  @@index([createdAt])
+}
+
+/// Story cluster - groups related signals about the same event
+model StoryCluster {
+  id             String   @id @default(cuid())
+  fingerprint    String   @unique // hash(platforms + date-bucket + top-keywords) - dedup seatbelt
+  headline       String
+  contextSummary String   @db.Text // 1-2 sentence cluster summary
+  searchText     String   @db.Text // Precomputed: headline + keywords for pg_trgm
+  categories     Category[]
+
+  // Ranking - scaled Int (score * 1000) for stable cursor pagination
+  // Max possible ~50k (well under Int32 limit of 2.1B)
+  importanceScore Int   @default(0)
+  scoreBreakdown  Json? // {sourceDiversity, velocity, credibility, category, recency, manual}
+  manualBoost     Int   @default(0)
+
+  firstSeenAt  DateTime      @default(now())
+  lastSeenAt   DateTime      @default(now())
+  lastSignalAt DateTime      @default(now())
+  status       ClusterStatus @default(ACTIVE)
+
+  // Relations
+  signals   Signal[]
+  platforms ClusterPlatform[]
+
+  @@index([importanceScore(sort: Desc), lastSignalAt(sort: Desc), id(sort: Desc)])
+  @@index([status])
+  @@index([status, lastSignalAt]) // For stale sweeper queries
+  @@index([fingerprint])
+}
+
+/// Junction table for Cluster <-> Platform (many-to-many)
+model ClusterPlatform {
+  clusterId  String
+  cluster    StoryCluster @relation(fields: [clusterId], references: [id], onDelete: Cascade)
+  platformId String
+  platform   Platform     @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@id([clusterId, platformId])
+  @@index([platformId])
+}
+
+/// Junction table for Signal <-> Platform (many-to-many)
+model SignalPlatform {
+  signalId   String
+  signal     Signal   @relation(fields: [signalId], references: [id], onDelete: Cascade)
+  platformId String
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  @@id([signalId, platformId])
+  @@index([platformId])
+}
+
+/// AI Companion platform profile
+model Platform {
+  id          String  @id @default(cuid())
+  slug        String  @unique
+  name        String
+  description String? @db.Text
+  websiteUrl  String?
+  policyNotes String? @db.Text // Known policy changes (factual)
+
+  clusters ClusterPlatform[]
+  signals  SignalPlatform[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+}
+
+/// Source credibility weights for ranking
+model SourceCredibility {
+  id           String  @id @default(cuid())
+  sourceDomain String  @unique
+  weight       Float // 0.0-1.0
+  notes        String?
+
+  @@index([sourceDomain])
+}
+
+/// Ingest run tracking for ops/debugging
+model IngestRun {
+  id         String    @id @default(cuid())
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  status     RunStatus @default(RUNNING)
+
+  signalsFetched  Int   @default(0)
+  signalsAccepted Int   @default(0)
+  signalsRejected Int   @default(0)
+  errors          Json? // Array of error objects
+
+  @@index([startedAt])
+  @@index([status])
+}

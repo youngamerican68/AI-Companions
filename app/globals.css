@@ -1,0 +1,330 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --muted: #f0f0f0;
+  --muted-foreground: #666666;
+  --border: #cccccc;
+  --link: #0066cc;
+  --link-hover: #004499;
+  --header-bg: #006666;
+  --header-text: #ffffff;
+  --source-text: #333333;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Techmeme-style header */
+.tm-header {
+  background: var(--header-bg);
+  padding: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.tm-header-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tm-logo {
+  color: var(--header-text);
+  font-size: 24px;
+  font-weight: bold;
+  font-family: Arial, sans-serif;
+  text-decoration: none;
+}
+
+.tm-logo:hover {
+  color: var(--header-text);
+}
+
+.tm-tagline {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 12px;
+  font-family: Arial, sans-serif;
+}
+
+/* Main content container */
+.tm-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Story card - Techmeme style */
+.tm-story {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.tm-story:last-child {
+  border-bottom: none;
+}
+
+/* Story content with thumbnail */
+.tm-story-content {
+  display: flex;
+  gap: 16px;
+}
+
+.tm-story-text {
+  flex: 1;
+  min-width: 0;
+  /* Reserve space for thumbnail even when absent, for consistent text width */
+  margin-right: 136px; /* thumbnail width (120px) + gap (16px) */
+}
+
+/* When thumbnail is present, remove the reserved margin */
+.tm-story-content:has(.tm-thumbnail) .tm-story-text {
+  margin-right: 0;
+}
+
+/* Thumbnail image */
+.tm-thumbnail {
+  flex-shrink: 0;
+  width: 120px;
+  height: 80px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #f0f0f0;
+}
+
+.tm-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Larger thumbnail for top story */
+.tm-top-story .tm-thumbnail {
+  width: 160px;
+  height: 100px;
+}
+
+/* Lead source before headline */
+.tm-lead-source {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  color: var(--source-text);
+  margin-bottom: 3px;
+}
+
+/* Main headline link */
+.tm-headline {
+  font-size: 18px;
+  font-weight: normal;
+  line-height: 1.35;
+  margin: 0 0 8px 0;
+}
+
+.tm-headline a {
+  color: var(--link);
+  text-decoration: underline;
+}
+
+.tm-headline a:hover {
+  color: var(--link-hover);
+}
+
+/* Summary text */
+.tm-summary {
+  font-size: 14px;
+  color: #444;
+  margin: 6px 0 10px 0;
+  line-height: 1.5;
+}
+
+/* More sources inline */
+.tm-more {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  color: var(--source-text);
+  margin-top: 8px;
+}
+
+.tm-more-label {
+  color: #666;
+}
+
+.tm-more a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.tm-more a:hover {
+  text-decoration: underline;
+}
+
+.tm-more-sep {
+  color: #999;
+  margin: 0 4px;
+}
+
+/* Platform tags - subtle */
+.tm-platforms {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.tm-platform-tag {
+  display: inline-block;
+  background: #e8f4f4;
+  color: #006666;
+  padding: 3px 8px;
+  border-radius: 3px;
+  margin-right: 6px;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.tm-platform-tag:hover {
+  background: #d0e8e8;
+}
+
+/* Category tags - very subtle */
+.tm-categories {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: #888;
+  margin-top: 6px;
+}
+
+.tm-category {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+/* Time ago */
+.tm-time {
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+  color: #999;
+}
+
+/* Filter bar - minimal */
+.tm-filters {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  padding: 10px 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tm-filter-group {
+  display: inline-flex;
+  gap: 6px;
+  margin-right: 16px;
+}
+
+.tm-filter-btn {
+  padding: 6px 14px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  color: #666;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.tm-filter-btn:hover {
+  background: #eee;
+  border-color: #ccc;
+}
+
+.tm-filter-btn.active {
+  background: var(--header-bg);
+  border-color: var(--header-bg);
+  color: white;
+}
+
+.tm-filter-select {
+  padding: 6px 28px 6px 10px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  color: #666;
+  cursor: pointer;
+  font-size: 13px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px;
+}
+
+.tm-filter-select:hover {
+  background-color: #eee;
+  border-color: #ccc;
+}
+
+/* Footer */
+.tm-footer {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  color: #888;
+  text-align: center;
+  padding: 28px 16px;
+  margin-top: 40px;
+  border-top: 1px solid #ddd;
+}
+
+/* Loading states */
+.tm-loading {
+  background: #f5f5f5;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Top story - just slightly larger headline */
+.tm-top-story .tm-headline {
+  font-size: 20px;
+}
+
+/* Section headers */
+.tm-section-header {
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--header-bg);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 24px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--header-bg);
+}
+
+/* Empty state */
+.tm-empty {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 60px 16px;
+  color: #888;
+}
+
+.tm-empty-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.tm-empty-text {
+  font-size: 15px;
+}
