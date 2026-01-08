@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
-import type { Category } from '@prisma/client';
 
 interface Platform {
   slug: string;
@@ -12,15 +11,6 @@ interface Platform {
 interface FiltersProps {
   platforms?: Platform[];
 }
-
-const CATEGORIES: { value: Category | ''; label: string }[] = [
-  { value: '', label: 'All' },
-  { value: 'PRODUCT_UPDATE', label: 'Product' },
-  { value: 'SAFETY_YOUTH_RISK', label: 'Safety' },
-  { value: 'REGULATORY_LEGAL', label: 'Regulatory' },
-  { value: 'BUSINESS_FUNDING', label: 'Business' },
-  { value: 'CULTURAL_TREND', label: 'Culture' },
-];
 
 const TIME_WINDOWS: { value: string; label: string }[] = [
   { value: '24h', label: '24h' },
@@ -32,7 +22,6 @@ export function Filters({ platforms = [] }: FiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const currentCategory = searchParams.get('category') || '';
   const currentPlatform = searchParams.get('platform') || '';
   const currentWindow = searchParams.get('window') || '7d';
 
@@ -68,19 +57,6 @@ export function Filters({ platforms = [] }: FiltersProps) {
           </button>
         ))}
       </div>
-
-      {/* Category Filter */}
-      <select
-        value={currentCategory}
-        onChange={(e) => updateFilter('category', e.target.value)}
-        className="tm-filter-select"
-      >
-        {CATEGORIES.map((cat) => (
-          <option key={cat.value} value={cat.value}>
-            {cat.label}
-          </option>
-        ))}
-      </select>
 
       {/* Platform Filter */}
       {platforms.length > 0 && (
