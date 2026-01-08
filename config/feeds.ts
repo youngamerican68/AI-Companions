@@ -79,6 +79,24 @@ export const RSS_FEEDS: SourceConfig[] = [
     enabled: true,
     rateLimit: 1,
   },
+
+  // ============================================================================
+  // Google News - Targeted Queries
+  // ============================================================================
+  {
+    name: 'Google News - AI Companion',
+    type: SourceType.MEDIA,
+    url: 'https://news.google.com/rss/search?q=%22AI+companion%22&hl=en-US&gl=US&ceid=US:en',
+    enabled: true,
+    rateLimit: 0.5,
+  },
+  {
+    name: 'Google News - AI Platforms',
+    type: SourceType.MEDIA,
+    url: 'https://news.google.com/rss/search?q=Replika+OR+%22Character.AI%22+OR+%22Nomi+AI%22+OR+Kindroid&hl=en-US&gl=US&ceid=US:en',
+    enabled: true,
+    rateLimit: 0.5,
+  },
 ];
 
 /**
