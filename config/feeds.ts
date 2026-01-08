@@ -72,15 +72,13 @@ export const RSS_FEEDS: SourceConfig[] = [
   // ============================================================================
   // AI Companion Specific (when available)
   // ============================================================================
-  // Add official blog RSS feeds from platforms as they become available
-  // Example:
-  // {
-  //   name: 'Replika Blog',
-  //   type: SourceType.PRODUCT,
-  //   url: 'https://blog.replika.ai/rss',
-  //   enabled: true,
-  //   rateLimit: 1,
-  // },
+  {
+    name: 'Character.AI Blog',
+    type: SourceType.PRODUCT,
+    url: 'https://blog.character.ai/rss/',
+    enabled: true,
+    rateLimit: 1,
+  },
 ];
 
 /**
