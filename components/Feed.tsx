@@ -9,6 +9,7 @@ interface Signal {
   id: string;
   title: string | null;
   url: string;
+  imageUrl: string | null;
   sourceName: string;
   sourceDomain: string;
   publishedAt: string | null;
