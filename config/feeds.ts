@@ -81,6 +81,24 @@ export const RSS_FEEDS: SourceConfig[] = [
   },
 
   // ============================================================================
+  // Tech Blogs & Newsletters
+  // ============================================================================
+  {
+    name: '404 Media',
+    type: SourceType.MEDIA,
+    url: 'https://www.404media.co/rss/',
+    enabled: true,
+    rateLimit: 1,
+  },
+  {
+    name: 'Platformer',
+    type: SourceType.MEDIA,
+    url: 'https://www.platformer.news/rss/',
+    enabled: true,
+    rateLimit: 1,
+  },
+
+  // ============================================================================
   // Google News - Targeted Queries
   // ============================================================================
   {
